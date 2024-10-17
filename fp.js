@@ -46,7 +46,7 @@ export var cond =
 export var match =
   (fallback, ...patterns) =>
   (value) => {
-    const matched = patterns.find((pattern) => pattern[0] === value);
+    var matched = patterns.find((pattern) => pattern[0] === value);
     return matched ? matched[1](value) : fallback;
   };
 
@@ -54,7 +54,7 @@ export var match =
  * Maybe monad
  */
 export var Maybe = (() => {
-  const M = function (value) {
+  var M = function (value) {
     /**
      * @private
      */
