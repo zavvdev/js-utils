@@ -1,54 +1,62 @@
 /**
  * @template {unknown} T
- * @param {T} value
- * @param  {...(value: T) => T} fns
- * @returns {T}
+ * @template {unknown} R
+ * @param {Array<Function>} fns
+ * @returns {(x: T) => T | R}
  */
-export var pipe = (value, ...fns) => fns.reduce((r, f) => f(r), value);
+export var pipe =
+  (...fns) =>
+  (x) =>
+    fns.reduce((r, f) => f(r), x);
 
 /**
  * @template {unknown} T
- * @param {T} values
- * @returns {T}
+ * @template {unknown} R
+ * @param {Array<Function>} fns
+ * @returns {(x: T) => T | R}
  */
-export var identity = (value) => value;
+export var compose =
+  (...fns) =>
+  (x) =>
+    fns.reduceRight((r, f) => f(r), x);
 
 /**
  * @template {unknown} T
- * @param {T} value
+ * @param {T} x
+ * @returns {T}
+ */
+export var identity = (x) => x;
+
+/**
+ * @template {unknown} T
+ * @param {T} x
  * @returns {boolean}
  */
-export var not = (value) => !value;
+export var not = (x) => !x;
 
 /**
  * @template {unknown} T
  * @param {(T) => T} elseClause
- * @param {Array<[(T) => boolean, (value: T) => T]>} ifClauses
- * @retuns {(value: T) => T}
+ * @param {Array<[(T) => boolean, (x: T) => T]>} ifClauses
+ * @retuns {(x: T) => T}
  */
 export var cond =
   (elseClause, ...ifClauses) =>
-    (value) => {
-      return (
-        ifClauses.find((ifClause) => ifClause[0](value))?.[1]?.(value) ||
-        elseClause(value)
-      );
-    };
+  (x) =>
+    ifClauses.find((ifClause) => ifClause[0](x))?.[1]?.(x) || elseClause(x);
 
 /**
  * @template {string|number|null|undefined|boolean} T
  * @template {unknown} R
  * @template {unknown} F
  * @param {F} fallback
- * @param {Array<[T, (value: T) => R]>} patterns
- * @retuns (value: T) => R
+ * @param {Array<[T, (x: T) => R]>} patterns
+ * @retuns {(x: T) => R}
  */
 export var match =
   (fallback, ...patterns) =>
-    (value) => {
-      var matched = patterns.find((pattern) => pattern[0] === value);
-      return matched ? matched[1](value) : fallback;
-    };
+  (x) =>
+    patterns.find((pattern) => pattern[0] === x)?.[1]?.(x) || fallback;
 
 /**
  * @param {Function} fn
@@ -70,26 +78,26 @@ export var curry = (fn) => {
  * Maybe monad
  */
 export var Maybe = (() => {
-  var M = function(value) {
+  var M = function (value) {
     /**
      * @private
      */
     this.__v = value;
   };
 
-  M.of = function(value) {
+  M.of = function (value) {
     return new M(value);
   };
 
-  M.prototype.isNone = function() {
+  M.prototype.isNone = function () {
     return this.__v === null || this.__v === undefined;
   };
 
-  M.prototype.value = function() {
+  M.prototype.value = function () {
     return this.__v;
   };
 
-  M.prototype.map = function(f) {
+  M.prototype.map = function (f) {
     if (this.isNone()) {
       return M.of(this.__v);
     }
@@ -97,7 +105,7 @@ export var Maybe = (() => {
     return M.of(f(this.__v));
   };
 
-  M.prototype.orElse = function(fallback) {
+  M.prototype.orElse = function (fallback) {
     if (this.isNone()) {
       return M.of(fallback);
     }
