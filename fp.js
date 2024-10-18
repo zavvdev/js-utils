@@ -28,12 +28,12 @@ export var not = (value) => !value;
  */
 export var cond =
   (elseClause, ...ifClauses) =>
-  (value) => {
-    return (
-      ifClauses.find((ifClause) => ifClause[0](value))?.[1]?.(value) ||
-      elseClause(value)
-    );
-  };
+    (value) => {
+      return (
+        ifClauses.find((ifClause) => ifClause[0](value))?.[1]?.(value) ||
+        elseClause(value)
+      );
+    };
 
 /**
  * @template {string|number|null|undefined|boolean} T
@@ -45,35 +45,51 @@ export var cond =
  */
 export var match =
   (fallback, ...patterns) =>
-  (value) => {
-    var matched = patterns.find((pattern) => pattern[0] === value);
-    return matched ? matched[1](value) : fallback;
+    (value) => {
+      var matched = patterns.find((pattern) => pattern[0] === value);
+      return matched ? matched[1](value) : fallback;
+    };
+
+/**
+ * @param {Function} fn
+ * @returns {Function}
+ */
+export var curry = (fn) => {
+  var arity = fn.length;
+
+  return function result(...args) {
+    if (args.length < arity) {
+      return result.bind(null, ...args);
+    }
+
+    return fn.call(null, ...args);
   };
+};
 
 /**
  * Maybe monad
  */
 export var Maybe = (() => {
-  var M = function (value) {
+  var M = function(value) {
     /**
      * @private
      */
     this.__v = value;
   };
 
-  M.of = function (value) {
+  M.of = function(value) {
     return new M(value);
   };
 
-  M.prototype.isNone = function () {
+  M.prototype.isNone = function() {
     return this.__v === null || this.__v === undefined;
   };
 
-  M.prototype.value = function () {
+  M.prototype.value = function() {
     return this.__v;
   };
 
-  M.prototype.map = function (f) {
+  M.prototype.map = function(f) {
     if (this.isNone()) {
       return M.of(this.__v);
     }
@@ -81,7 +97,7 @@ export var Maybe = (() => {
     return M.of(f(this.__v));
   };
 
-  M.prototype.orElse = function (fallback) {
+  M.prototype.orElse = function(fallback) {
     if (this.isNone()) {
       return M.of(fallback);
     }
