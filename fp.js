@@ -2,26 +2,26 @@
  * Maybe monad
  */
 export var Maybe = (() => {
-  var M = function (value) {
+  var M = function(value) {
     /**
      * @private
      */
     this.__v = value;
   };
 
-  M.of = function (value) {
+  M.of = function(value) {
     return new M(value);
   };
 
-  M.prototype.isNone = function () {
+  M.prototype.isNone = function() {
     return this.__v === null || this.__v === undefined;
   };
 
-  M.prototype.value = function () {
+  M.prototype.value = function() {
     return this.__v;
   };
 
-  M.prototype.map = function (f) {
+  M.prototype.map = function(f) {
     if (this.isNone()) {
       return M.of(this.__v);
     }
@@ -29,7 +29,7 @@ export var Maybe = (() => {
     return M.of(f(this.__v));
   };
 
-  M.prototype.orElse = function (fallback) {
+  M.prototype.orElse = function(fallback) {
     if (this.isNone()) {
       return M.of(fallback);
     }
@@ -48,8 +48,8 @@ export var Maybe = (() => {
  */
 export var pipe =
   (...fns) =>
-  (x) =>
-    fns.reduce((r, f) => f(r), x);
+    (x) =>
+      fns.reduce((r, f) => f(r), x);
 
 /**
  * @template {unknown} T
@@ -59,8 +59,8 @@ export var pipe =
  */
 export var compose =
   (...fns) =>
-  (x) =>
-    fns.reduceRight((r, f) => f(r), x);
+    (x) =>
+      fns.reduceRight((r, f) => f(r), x);
 
 /**
  * @template {unknown} T
@@ -93,6 +93,13 @@ export var not = (x) => !x;
 export var prop = (k) => (x) => x[k];
 
 /**
+ * @template {unknown} T
+ * @param {Array<T>} xs
+ * @returns {T}
+ */
+export var head = (xs) => xs[0];
+
+/**
  * @template {Object} T
  * @template {unknown} R
  * @param {string} k
@@ -102,14 +109,21 @@ export var safeProp = (k) => (x) => Maybe.of(x[k]);
 
 /**
  * @template {unknown} T
+ * @param {Array<T>} xs
+ * @returns {Maybe(T)}
+ */
+export var safeHead = (xs) => Maybe.of(xs[0]);
+
+/**
+ * @template {unknown} T
  * @param {(T) => T} elseClause
  * @param {Array<[(T) => boolean, (x: T) => T]>} ifClauses
  * @retuns {(x: T) => T}
  */
 export var cond =
   (elseClause, ...ifClauses) =>
-  (x) =>
-    ifClauses.find((ifClause) => ifClause[0](x))?.[1]?.(x) || elseClause(x);
+    (x) =>
+      ifClauses.find((ifClause) => ifClause[0](x))?.[1]?.(x) || elseClause(x);
 
 /**
  * @template {string|number|null|undefined|boolean} T
@@ -121,8 +135,8 @@ export var cond =
  */
 export var match =
   (fallback, ...patterns) =>
-  (x) =>
-    patterns.find((pattern) => pattern[0] === x)?.[1]?.(x) || fallback;
+    (x) =>
+      patterns.find((pattern) => pattern[0] === x)?.[1]?.(x) || fallback;
 
 /**
  * @param {Function} fn
