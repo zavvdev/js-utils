@@ -18,8 +18,8 @@
  */
 export var pipe =
   (...fns) =>
-    (x) =>
-      fns.reduce((r, f) => f(r), x);
+  (x) =>
+    fns.reduce((r, f) => f(r), x);
 
 /**
  * compose :: ((y -> z), (x -> y),  ..., (a -> b)) -> a -> z
@@ -31,8 +31,8 @@ export var pipe =
  */
 export var compose =
   (...fns) =>
-    (x) =>
-      fns.reduceRight((r, f) => f(r), x);
+  (x) =>
+    fns.reduceRight((r, f) => f(r), x);
 
 /**
  * curry :: ((a, b, ...) -> c) -> a -> b -> ... -> c
@@ -71,6 +71,10 @@ export var identity = (x) => x;
 
 // ============================================================================
 
+/**
+ * Maybe
+ */
+
 export class Maybe {
   constructor(x) {
     this.$value = x;
@@ -97,6 +101,10 @@ export class Maybe {
   }
 }
 
+/**
+ * IO
+ */
+
 export class IO {
   constructor(fn) {
     this.unsafePerformIO = fn;
@@ -114,6 +122,73 @@ export class IO {
     return this.unsafePerformIO;
   }
 }
+
+/**
+ * Either
+ */
+
+export var Either = (() => {
+  class Left {
+    constructor(x) {
+      this.$value = x;
+    }
+
+    get isLeft() {
+      return true;
+    }
+
+    get isRight() {
+      return false;
+    }
+
+    map() {
+      return this;
+    }
+
+    join() {
+      return this.$value;
+    }
+  }
+
+  class Right {
+    constructor(x) {
+      this.$value = x;
+    }
+
+    get isLeft() {
+      return false;
+    }
+
+    get isRight() {
+      return true;
+    }
+
+    map(fn) {
+      return new Right(fn(this.$value));
+    }
+
+    join() {
+      return this.$value;
+    }
+  }
+
+  return {
+    right: (x) => new Right(x),
+
+    left: (x) => new Left(x),
+
+    map: (fn) => (x) => (x.isRight ? new Right(fn(x.join())) : x),
+
+    mapLeft: (fn) => (x) => (x.isLeft ? new Left(fn(x.join())) : x),
+
+    join: (x) => {
+      if (x.isLeft || x.isRight) {
+        return x.join();
+      }
+      throw new Error("Not an Either type");
+    },
+  };
+})();
 
 // ============================================================================
 
@@ -212,8 +287,8 @@ export var not = (x) => !x;
  */
 export var cond =
   (elseClause, ...ifClauses) =>
-    (x) =>
-      ifClauses.find((ifClause) => ifClause[0](x))?.[1]?.(x) || elseClause(x);
+  (x) =>
+    ifClauses.find((ifClause) => ifClause[0](x))?.[1]?.(x) || elseClause(x);
 
 /**
  * match :: a, [(a, a -> b)], ... [(a, a -> b)] -> a -> b
@@ -227,5 +302,5 @@ export var cond =
  */
 export var match =
   (fallback, ...patterns) =>
-    (x) =>
-      patterns.find((pattern) => pattern[0] === x)?.[1]?.(x) || fallback;
+  (x) =>
+    patterns.find((pattern) => pattern[0] === x)?.[1]?.(x) || fallback;
