@@ -162,7 +162,7 @@ export var last = (xs) => xs[xs.length - 1];
 export var safeLast = (xs) => Maybe.of(xs[xs.length - 1]);
 
 /**
- * map :: (a -> b) -> Functor f a -> f b
+ * map :: Functor f => (a -> b) -> f a -> f b
  *
  * @template {unknown} T
  * @template {unknown} R
