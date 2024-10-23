@@ -92,6 +92,10 @@ export class Maybe {
     return this.isNothing ? this : Maybe.of(fn(this.$value));
   }
 
+  chain(fn) {
+    return this.map(fn).join();
+  }
+
   orElse(fallback) {
     return this.isNothing ? Maybe.of(fallback) : this;
   }
@@ -116,6 +120,10 @@ export class IO {
 
   map(fn) {
     return new IO((...args) => fn(this.unsafePerformIO(...args)));
+  }
+
+  chain(fn) {
+    return this.map(fn).join();
   }
 
   join() {
