@@ -122,10 +122,6 @@ export class IO {
     return new IO((...args) => fn(this.unsafePerformIO(...args)));
   }
 
-  chain(fn) {
-    return this.map(fn).join();
-  }
-
   join() {
     return this.unsafePerformIO;
   }
