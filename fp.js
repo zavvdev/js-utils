@@ -18,8 +18,8 @@
  */
 export var pipe =
   (...fns) =>
-  (x) =>
-    fns.reduce((r, f) => f(r), x);
+    (x) =>
+      fns.reduce((r, f) => f(r), x);
 
 /**
  * compose :: ((y -> z), (x -> y),  ..., (a -> b)) -> a -> z
@@ -31,8 +31,8 @@ export var pipe =
  */
 export var compose =
   (...fns) =>
-  (x) =>
-    fns.reduceRight((r, f) => f(r), x);
+    (x) =>
+      fns.reduceRight((r, f) => f(r), x);
 
 /**
  * curry :: ((a, b, ...) -> c) -> a -> b -> ... -> c
@@ -194,6 +194,41 @@ export var Either = (() => {
   };
 })();
 
+/**
+ * Match
+ */
+
+export class Match {
+  constructor(x, m) {
+    this.$value = x;
+    this.$matched = m;
+  }
+
+  static of(x) {
+    return new Match(x);
+  }
+
+  on(x, fn) {
+    if (this.$value === x) {
+      return new Match(fn(this.$value), true);
+    }
+
+    return this;
+  }
+
+  or(x) {
+    if (!this.$matched) {
+      return new Match(x);
+    }
+
+    return this;
+  }
+
+  join() {
+    return this.$value;
+  }
+}
+
 // ============================================================================
 
 /*
@@ -291,8 +326,8 @@ export var not = (x) => !x;
  */
 export var cond =
   (elseClause, ...ifClauses) =>
-  (x) =>
-    ifClauses.find((ifClause) => ifClause[0](x))?.[1]?.(x) || elseClause(x);
+    (x) =>
+      ifClauses.find((ifClause) => ifClause[0](x))?.[1]?.(x) || elseClause(x);
 
 /**
  * match :: a, [(a, a -> b)], ... [(a, a -> b)] -> a -> b
@@ -306,5 +341,5 @@ export var cond =
  */
 export var match =
   (fallback, ...patterns) =>
-  (x) =>
-    patterns.find((pattern) => pattern[0] === x)?.[1]?.(x) || fallback;
+    (x) =>
+      patterns.find((pattern) => pattern[0] === x)?.[1]?.(x) || fallback;
