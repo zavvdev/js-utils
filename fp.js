@@ -131,68 +131,103 @@ export class IO {
  * Either
  */
 
-export var Either = (() => {
-  class Left {
-    constructor(x) {
-      this.$value = x;
-    }
-
-    get isLeft() {
-      return true;
-    }
-
-    get isRight() {
-      return false;
-    }
-
-    map() {
-      return this;
-    }
-
-    join() {
-      return this.$value;
-    }
+export class Either {
+  constructor(x) {
+    this.$value = x;
   }
 
-  class Right {
-    constructor(x) {
-      this.$value = x;
-    }
-
-    get isLeft() {
-      return false;
-    }
-
-    get isRight() {
-      return true;
-    }
-
-    map(fn) {
-      return new Right(fn(this.$value));
-    }
-
-    join() {
-      return this.$value;
-    }
+  static right(x) {
+    return new Right(x);
   }
 
-  return {
-    right: (x) => new Right(x),
+  static left(x) {
+    return new Left(x);
+  }
 
-    left: (x) => new Left(x),
+  static map(fn) {
+    return (x) => (x.isRight ? new Right(fn(x.join())) : x);
+  }
 
-    map: (fn) => (x) => (x.isRight ? new Right(fn(x.join())) : x),
+  static mapLeft(fn) {
+    return (x) => (x.isLeft ? new Left(fn(x.join())) : x);
+  }
 
-    mapLeft: (fn) => (x) => (x.isLeft ? new Left(fn(x.join())) : x),
+  /**
+   * @param {Left | Right} x
+   * @returns {boolean}
+   */
+  static isLeft(x) {
+    return x.isLeft;
+  }
 
-    join: (x) => {
-      if (x.isLeft || x.isRight) {
-        return x.join();
-      }
-      throw new Error("Not an Either type");
-    },
-  };
-})();
+  /**
+   * @param {Left | Right} x
+   * @returns {boolean}
+   */
+  static isRight(x) {
+    return x.isRight;
+  }
+
+  /**
+   * @template {unknown} T
+   * @param {Left | Right} x
+   * @returns {T}
+   */
+  static join(x) {
+    if (x.isLeft || x.isRight) {
+      return x.join();
+    }
+    throw new Error("Not an Either type");
+  }
+}
+
+class Left extends Either {
+  get isLeft() {
+    return true;
+  }
+
+  get isRight() {
+    return false;
+  }
+
+  static of() {
+    throw new Error(
+      "`of` called on class Left (value) instead of Either (type)",
+    );
+  }
+
+  map() {
+    return this;
+  }
+
+  join() {
+    return this.$value;
+  }
+}
+
+class Right extends Either {
+  get isLeft() {
+    return false;
+  }
+
+  get isRight() {
+    return true;
+  }
+
+  static of() {
+    throw new Error(
+      "`of` called on class Right (value) instead of Either (type)",
+    );
+  }
+
+  map(fn) {
+    return Either.right(fn(this.$value));
+  }
+
+  join() {
+    return this.$value;
+  }
+}
 
 /**
  * Match
