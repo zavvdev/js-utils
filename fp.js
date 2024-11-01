@@ -145,11 +145,19 @@ export class Either {
   }
 
   static map(fn) {
-    return (x) => (x.isRight ? new Right(fn(x.join())) : x);
+    return (x) => (x?.isRight ? new Right(fn(x.join())) : x);
+  }
+
+  static chain(fn) {
+    return (x) => (x?.isRight ? fn(x.join()) : x);
   }
 
   static mapLeft(fn) {
-    return (x) => (x.isLeft ? new Left(fn(x.join())) : x);
+    return (x) => (x?.isLeft ? new Left(fn(x.join())) : x);
+  }
+
+  static chainLeft(fn) {
+    return (x) => (x?.isLeft ? fn(x.join()) : x);
   }
 
   /**
@@ -157,7 +165,7 @@ export class Either {
    * @returns {boolean}
    */
   static isLeft(x) {
-    return x.isLeft;
+    return Boolean(x?.isLeft);
   }
 
   /**
@@ -165,7 +173,7 @@ export class Either {
    * @returns {boolean}
    */
   static isRight(x) {
-    return x.isRight;
+    return Boolean(x?.isRight);
   }
 
   /**
@@ -174,7 +182,7 @@ export class Either {
    * @returns {T}
    */
   static join(x) {
-    if (x.isLeft || x.isRight) {
+    if (x?.isLeft || x?.isRight) {
       return x.join();
     }
     throw new Error("Not an Either type");
