@@ -18,8 +18,8 @@
  */
 export var pipe =
   (...fns) =>
-    (x) =>
-      fns.reduce((r, f) => f(r), x);
+  (x) =>
+    fns.reduce((r, f) => f(r), x);
 
 /**
  * compose :: ((y -> z), (x -> y),  ..., (a -> b)) -> a -> z
@@ -31,8 +31,8 @@ export var pipe =
  */
 export var compose =
   (...fns) =>
-    (x) =>
-      fns.reduceRight((r, f) => f(r), x);
+  (x) =>
+    fns.reduceRight((r, f) => f(r), x);
 
 /**
  * curry :: ((a, b, ...) -> c) -> a -> b -> ... -> c
@@ -369,20 +369,5 @@ export var not = (x) => !x;
  */
 export var cond =
   (elseClause, ...ifClauses) =>
-    (x) =>
-      ifClauses.find((ifClause) => ifClause[0](x))?.[1]?.(x) || elseClause(x);
-
-/**
- * match :: a, [(a, a -> b)], ... [(a, a -> b)] -> a -> b
- *
- * @template {unknown} T
- * @template {unknown} R
- * @template {unknown} F
- * @param {F} fallback
- * @param {Array<[T, (x: T) => R]>} patterns
- * @retuns {(x: T) => F | R}
- */
-export var match =
-  (fallback, ...patterns) =>
-    (x) =>
-      patterns.find((pattern) => pattern[0] === x)?.[1]?.(x) || fallback;
+  (x) =>
+    ifClauses.find((ifClause) => ifClause[0](x))?.[1]?.(x) || elseClause(x);
