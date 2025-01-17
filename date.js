@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 
-export const dateUtil = {
+export var dateUtil = {
   /**
    * @param {string | undefined} value
    * @returns {boolean}
@@ -22,13 +22,13 @@ export const dateUtil = {
    * @returns {boolean}
    */
   isInPast: (parameters) => {
-    const date = dayjs(parameters.date);
+    var date = dayjs(parameters.date);
 
-    const beforeDate = parameters.beforeDate
+    var beforeDate = parameters.beforeDate
       ? dayjs(parameters.beforeDate)
       : dayjs();
 
-    const unit = parameters.unit ?? DateUnit.Milliseconds;
+    var unit = parameters.unit ?? DateUnit.Milliseconds;
 
     return date.isBefore(beforeDate, unit);
   },

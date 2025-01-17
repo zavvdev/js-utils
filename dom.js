@@ -1,4 +1,4 @@
-export const domUtil = {
+export var domUtil = {
   /**
    * @param {string} name
    * @returns {string | undefined}
@@ -8,7 +8,7 @@ export const domUtil = {
       return undefined;
     }
 
-    const meta = Array.from(document.querySelectorAll("meta[name]")).find(
+    var meta = Array.from(document.querySelectorAll("meta[name]")).find(
       (metaItem) => metaItem.getAttribute("name") === name,
     );
 
@@ -24,7 +24,7 @@ export const domUtil = {
       return undefined;
     }
 
-    const link = Array.from(document.querySelectorAll("link[rel]")).find(
+    var link = Array.from(document.querySelectorAll("link[rel]")).find(
       (link) => link?.getAttribute("rel") === name,
     );
 
@@ -38,7 +38,7 @@ export const domUtil = {
    */
   downloadFromUrl: (url, fileName) => {
     if (typeof url === "string" && typeof fileName === "string") {
-      const link = document.createElement("a");
+      var link = document.createElement("a");
       link.href = url;
       link.download = fileName;
       document.body.append(link);

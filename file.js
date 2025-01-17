@@ -1,9 +1,9 @@
-class FileUtil {
+export var fileUtil = {
   /**
    * @param {string} filename
    * @returns {string}
    */
-  getExtensionFromName = (filename) => {
+  getExtensionFromName: (filename) => {
     if (filename.length === 0) {
       return "";
     }
@@ -15,7 +15,7 @@ class FileUtil {
     }
 
     return filename.slice(dot, filename.length);
-  };
+  },
 
   /**
    * @param {File} file
@@ -25,7 +25,7 @@ class FileUtil {
    *
    * @returns {Promise<string | ArrayBuffer>}
    */
-  read = async (file, { method = "arrayBuffer" } = {}) => {
+  read: async (file, { method = "arrayBuffer" } = {}) => {
     var methodsMap = {
       text: "readAsText",
       arrayBuffer: "readAsArrayBuffer",
@@ -33,67 +33,65 @@ class FileUtil {
     };
 
     return new Promise((resolve, reject) => {
-      const reader = new FileReader();
+      var reader = new FileReader();
       reader.onload = () => {
         resolve(reader.result);
       };
       reader.onerror = reject;
       reader[methodsMap[method]](file);
     });
-  };
+  },
 
   /**
    * @param {string} base64
    * @param {"pdf"} convertType
    * @returns {Blob}
    */
-  base64ToBlob = (base64, convertType) => {
+  base64ToBlob: (base64, convertType) => {
     if (typeof base64 === "string") {
-      const byteCharacters = atob(base64);
-      const byteNumbers = Array.from(
+      var byteCharacters = atob(base64);
+      var byteNumbers = Array.from(
         byteCharacters,
         (char) => char.codePointAt(0) || 0,
       );
 
-      const byteArray = new Uint8Array(byteNumbers);
+      var byteArray = new Uint8Array(byteNumbers);
       return new Blob([byteArray], { type: `application/${convertType}` });
     }
 
     throw new TypeError(`not string type`);
-  };
+  },
 
   /**
    * @param {Blob} blob
    * @returns {string}
    */
-  blobToUrl = (blob) => {
+  blobToUrl: (blob) => {
     if (blob instanceof Blob) {
       return URL.createObjectURL(blob);
     }
     throw new TypeError(`Not blob type`);
-  };
+  },
 
   /**
    * @param {string} dataUrl
    * @param {string} fileName
    * @returns {File}
    */
-  dataUrlToFile = (dataUrl, fileName) => {
-    const array = dataUrl.split(",");
-    const regex = /:(.*?);/;
-    const match = array?.[0] ? regex.exec(array?.[0]) : null;
-    const mime = match?.[1];
-    const bstr = atob(array[1]);
+  dataUrlToFile: (dataUrl, fileName) => {
+    var array = dataUrl.split(",");
+    var regex = /:(.*?);/;
+    var match = array?.[0] ? regex.exec(array?.[0]) : null;
+    var mime = match?.[1];
+    var bstr = atob(array[1]);
 
-    let n = bstr.length;
-    const u8array = new Uint8Array(n);
+    var n = bstr.length;
+    var u8array = new Uint8Array(n);
 
     while (n--) {
       u8array[n] = bstr.codePointAt(n);
     }
 
     return new File([u8array], fileName, { type: mime });
-  };
-}
-
-export const fileUtil = new FileUtil();
+  },
+};
