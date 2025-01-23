@@ -1,16 +1,24 @@
 import dayjs from "dayjs";
 
+/**
+ * @param {string | Date} date
+ * @param {string} format
+ * @returns {string | undefined}
+ */
+var getFormat = (date, format) =>
+  typeof date === "string" ? format : undefined;
+
 export var dateUtil = {
   /**
    * @param {string | undefined} value
+   * @param {string | undefined} format
    * @returns {boolean}
    */
-  isValid: (value) => {
+  isValid: (value, format) => {
     if (!value) {
       return false;
     }
-
-    return dayjs(value).isValid();
+    return dayjs(value, getFormat(value, format)).isValid();
   },
 
   /**
@@ -18,17 +26,24 @@ export var dateUtil = {
    *    date: string | Date;
    *    beforeDate?: string | Date;
    *    unit?: "milliseconds" | "day";
+   *    format?: string;
    * }} parameters
    * @returns {boolean}
    */
   isInPast: (parameters) => {
-    var date = dayjs(parameters.date);
+    var date = dayjs(
+      parameters.date,
+      getFormat(parameters.date, parameters.format),
+    );
 
     var beforeDate = parameters.beforeDate
-      ? dayjs(parameters.beforeDate)
+      ? dayjs(
+        parameters.beforeDate,
+        getFormat(parameters.beforeDate, parameters.format),
+      )
       : dayjs();
 
-    var unit = parameters.unit ?? DateUnit.Milliseconds;
+    var unit = parameters.unit ?? "milliseconds";
 
     return date.isBefore(beforeDate, unit);
   },
@@ -40,7 +55,7 @@ export var dateUtil = {
    * @returns {string}
    */
   format: (value, format, valueFormat) => {
-    return dayjs(value, valueFormat).format(format);
+    return dayjs(value, getFormat(value, valueFormat)).format(format);
   },
 
   /**
@@ -62,60 +77,51 @@ export var dateUtil = {
   },
 
   /**
-   * @param {string | number | Date} value
-   * @param {"past" | "future"} direction
-   * @param {number?} daysCount
-   * @returns {Date}
-   */
-  move: (value, direction, daysCount = 1) => {
-    if (direction === "past") {
-      return dayjs(value).subtract(daysCount, "day").toDate();
-    }
-
-    return dayjs(value).add(1, "day").toDate();
-  },
-
-  /**
    * @param {string | number | Date | undefined} date
+   * @param {string?} format
    * @returns {Date}
    */
-  getMonthStartDate: (date) => {
-    return dayjs(date).startOf("month").toDate();
+  getMonthStartDate: (date, format) => {
+    return dayjs(date, getFormat(date, format)).startOf("month").toDate();
   },
 
   /**
    * @param {string | Date} date
+   * @param {string?} format
    * @returns {number}
    */
-  getTimestamp: (date) => {
+  getTimestamp: (date, format) => {
     if (!date) {
       return 0;
     }
-    return dayjs(date).valueOf();
+    return dayjs(date, getFormat(date, format)).valueOf();
   },
 
   /**
    * @param {string | Date} date
+   * @param {string?} format
    * @returns {number}
    */
-  getDay: (date) => {
-    return dayjs(date).date();
+  getDay: (date, format) => {
+    return dayjs(date, getFormat(date, format)).date();
   },
 
   /**
    * Zero-indexed
    * @param {string | Date} date
+   * @param {string?} format
    * @returns {number}
    */
-  getMonth: (date) => {
-    return dayjs(date).month();
+  getMonth: (date, format) => {
+    return dayjs(date, getFormat(date, format)).month();
   },
 
   /**
    * @param {string | Date} date
+   * @param {string?} format
    * @returns {number}
    */
-  getYear: (date) => {
-    return dayjs(date).year();
+  getYear: (date, format) => {
+    return dayjs(date, getFormat(date, format)).year();
   },
 };
