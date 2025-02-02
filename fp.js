@@ -128,6 +128,31 @@ export class IO {
 }
 
 /**
+ * Task
+ */
+
+export class Task {
+  constructor(fn) {
+    this.runner = fn;
+  }
+
+  static of(fn) {
+    return new Task(fn);
+  }
+
+  map(fn) {
+    return new Task(async (...args) => {
+      const result = await this.runner(...args);
+      return fn(result);
+    });
+  }
+
+  join() {
+    return this.runner;
+  }
+}
+
+/**
  * Either
  */
 
