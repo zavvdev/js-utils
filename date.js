@@ -1,7 +1,29 @@
 import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+
+dayjs.extend(utc);
 
 /**
- * @param {string | Date} date
+ * @typedef {string | number | Date} DateType
+ *
+ * @typedef {{
+ *  format?: string;
+ *  utc?: boolean;
+ * }} Parameters
+ */
+
+/**
+ * @param {Parameters?} parameters
+ * @param {DateType?} date
+ * @returns {dayjs.Dayjs}
+ */
+var getF = (parameters, date) => {
+  var isUtc = parameters?.utc ?? true;
+  return isUtc && date ? dayjs.utc : dayjs;
+};
+
+/**
+ * @param {DateType} date
  * @param {string} format
  * @returns {string | undefined}
  */
@@ -10,52 +32,47 @@ var getFormat = (date, format) =>
 
 export var dateUtil = {
   /**
-   * @param {string | undefined} value
-   * @param {string | undefined} format
+   * @param {DateType} date
+   * @param {Parameters?} parameters
    * @returns {boolean}
    */
-  isValid: (value, format) => {
-    if (!value) {
-      return false;
-    }
-    return dayjs(value, getFormat(value, format)).isValid();
+  isValid: (date, parameters) => {
+    if (!date) return false;
+    var f = getF(parameters, date);
+    return f(value, getFormat(value, parameters?.format)).isValid();
   },
 
   /**
-   * @param {{
-   *    date: string | Date;
-   *    beforeDate?: string | Date;
+   * @param {DateType} date
+   * @param {Parameters & {
+   *    beforeDate?: DateType;
    *    unit?: "milliseconds" | "day";
-   *    format?: string;
    * }} parameters
    * @returns {boolean}
    */
-  isInPast: (parameters) => {
-    var date = dayjs(
-      parameters.date,
-      getFormat(parameters.date, parameters.format),
-    );
+  isInPast: (date, parameters) => {
+    var f = getF(parameters, date);
+    var date_ = f(date, getFormat(date, parameters?.format));
 
-    var beforeDate = parameters.beforeDate
-      ? dayjs(
+    var beforeDate = parameters?.beforeDate
+      ? f(
         parameters.beforeDate,
-        getFormat(parameters.beforeDate, parameters.format),
+        ensureFormat(parameters.beforeDate, parameters?.format),
       )
       : dayjs();
 
-    var unit = parameters.unit ?? "milliseconds";
-
-    return date.isBefore(beforeDate, unit);
+    return date_.isBefore(beforeDate, parameters?.unit ?? "milliseconds");
   },
 
   /**
-   * @param {string | number | Date} date
+   * @param {DateType} date
    * @param {string} format
-   * @param {string?} valueFormat
+   * @param {Parameters?} parameters
    * @returns {string}
    */
-  format: (value, format, valueFormat) => {
-    return dayjs(value, getFormat(value, valueFormat)).format(format);
+  format: (date, format, parameters) => {
+    var f = getF(parameters, date);
+    return f(date, getFormat(date, parameters?.format)).format(format);
   },
 
   /**
@@ -70,58 +87,44 @@ export var dateUtil = {
   },
 
   /**
-   * @returns {Date}
-   */
-  getTomorrowsDate: () => {
-    return dayjs().add(1, "day").toDate();
-  },
-
-  /**
-   * @param {string | number | Date | undefined} date
-   * @param {string?} format
-   * @returns {Date}
-   */
-  getMonthStartDate: (date, format) => {
-    return dayjs(date, getFormat(date, format)).startOf("month").toDate();
-  },
-
-  /**
-   * @param {string | Date} date
-   * @param {string?} format
+   * @param {DateType} date
+   * @param {Parameters?}
    * @returns {number}
    */
-  getTimestamp: (date, format) => {
-    if (!date) {
-      return 0;
-    }
-    return dayjs(date, getFormat(date, format)).valueOf();
+  getTimestamp: (date, parameters) => {
+    if (!date) return 0;
+    var f = getF(parameters, date);
+    return f(date, getFormat(date, parameters?.format)).valueOf();
   },
 
   /**
-   * @param {string | Date} date
-   * @param {string?} format
+   * @param {DateType} date
+   * @param {Parameters?} parameters
    * @returns {number}
    */
-  getDay: (date, format) => {
-    return dayjs(date, getFormat(date, format)).date();
+  getDay: (date, parameters) => {
+    var f = getF(parameters, date);
+    return f(date, getFormat(date, parameters?.format)).date();
   },
 
   /**
    * Zero-indexed
-   * @param {string | Date} date
-   * @param {string?} format
+   * @param {DateType} date
+   * @param {Parameters?} parameters
    * @returns {number}
    */
-  getMonth: (date, format) => {
-    return dayjs(date, getFormat(date, format)).month();
+  getMonth: (date, parameters) => {
+    var f = getF(parameters, date);
+    return f(date, getFormat(date, parameters?.format)).month();
   },
 
   /**
-   * @param {string | Date} date
-   * @param {string?} format
+   * @param {DateType} date
+   * @param {Parameters?} parameters
    * @returns {number}
    */
-  getYear: (date, format) => {
-    return dayjs(date, getFormat(date, format)).year();
+  getYear: (date, parameters) => {
+    var f = getF(parameters, date);
+    return f(date, getFormat(date, parameters?.format)).year();
   },
 };
