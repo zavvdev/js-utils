@@ -94,4 +94,44 @@ export var fileUtil = {
 
     return new File([u8array], fileName, { type: mime });
   },
+
+  compress: (file, width) => {
+    return new Promise((res, rej) => {
+      var fileName = file.name;
+      var reader = new FileReader();
+
+      reader.readAsDataURL(file);
+
+      reader.onload = (event) => {
+        var img = new Image();
+        img.src = event.target.result;
+
+        (img.onload = () => {
+          var elem = document.createElement("canvas");
+          var scaleFactor = width / img.width;
+
+          elem.width = width;
+          elem.height = img.height * scaleFactor;
+
+          var ctx = elem.getContext("2d");
+
+          ctx.drawImage(img, 0, 0, width, img.height * scaleFactor);
+
+          ctx.canvas.toBlob(
+            (blob) => {
+              const file = new File([blob], fileName, {
+                type: "image/jpeg",
+                lastModified: Date.now(),
+              });
+
+              res(file);
+            },
+            "image/jpeg",
+            1,
+          );
+        }),
+          (reader.onerror = rej);
+      };
+    });
+  }
 };
