@@ -140,6 +140,21 @@ export class Task {
     return new Task(fn);
   }
 
+  static wrap(x) {
+    return Task.of(async () => x);
+  }
+
+  static all(...tasks) {
+    return new Task(async (...args) => {
+      var len = tasks.length;
+      var result = Array(len);
+      for (let i = 0; i < len; ++i) {
+        result[i] = await tasks[i].runner(...args);
+      }
+      return result;
+    });
+  }
+
   map(fn) {
     return new Task(async (...args) => {
       const result = await this.runner(...args);
@@ -149,6 +164,10 @@ export class Task {
 
   join() {
     return this.runner;
+  }
+
+  run(...args) {
+    return this.join()(...args);
   }
 }
 
@@ -165,6 +184,10 @@ export class Either {
     return new Right(x);
   }
 
+  static async asyncRight(x) {
+    return new Right(x);
+  }
+
   static left(x) {
     return new Left(x);
   }
@@ -175,6 +198,33 @@ export class Either {
 
   static chain(fn) {
     return (x) => (x?.isRight ? fn(x.join()) : x);
+  }
+
+  static passAsync(fn) {
+    return async (x) => {
+      if (x?.isRight) {
+        var res = await fn(x.join());
+
+        if (res?.isRight) {
+          return x;
+        }
+
+        return res;
+      }
+      return x;
+    };
+  }
+
+  static joinAll(fn) {
+    return (xs) =>
+      xs.every((x) => x.isRight)
+        ? fn(xs.map((x) => x.join()))
+        : xs.find((x) => x.isLeft);
+  }
+
+  static all(fn) {
+    return (xs) =>
+      xs.every((x) => x.isRight) ? fn(xs) : xs.find((x) => x.isLeft);
   }
 
   static mapLeft(fn) {
@@ -363,6 +413,10 @@ export var map = (fn) => (f) => f.map(fn);
  */
 export var prop = (k) => (x) => x[k];
 
+export var toObject = (k) => (x) => ({
+  [k]: x,
+});
+
 /**
  * safeProp :: String -> Object -> Maybe a
  *
@@ -395,4 +449,16 @@ export var not = (x) => !x;
 export var cond =
   (elseClause, ...ifClauses) =>
   (x) =>
-    ifClauses.find((ifClause) => ifClause[0](x))?.[1]?.(x) || elseClause(x);
+    ifClauses.find((ifClause) => ifClause[0](x))?.[1]?.(x) ||
+    elseClause(x);
+
+export var log = (label) => (x) => {
+  console.log(label || "LOG:", x);
+  return x;
+};
+
+export var mergeObjects = (objects) => {
+  return objects.reduce((acc, obj) => ({ ...acc, ...obj }), {});
+};
+
+export var hasLength = (xs) => xs?.length > 0;
